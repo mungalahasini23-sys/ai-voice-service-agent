@@ -32,7 +32,7 @@ export default function useSpeechRecognition(onFinalResult) {
     }, [onFinalResult]);
     const startListening = () => {
         setTranscript("");
-        recognitionRef.current?.start();
+        setTimeout(() => {recognitionRef.current?.start();},100);
     };
     const stopListening = () => {
         recognitionRef.current?.stop();

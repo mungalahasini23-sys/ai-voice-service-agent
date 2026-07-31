@@ -9,6 +9,7 @@ import StatusBar from "./StatusBar";
 function VoiceAgent() {
     const [messages, setMessages] = useState([]);
     const [status, setStatus] = useState("idle");
+    const [sessionId,setSessionId] = useState(null);
     const { speak } = useSpeechSynthesis();
     const sendMessage = useCallback(
         async (message) => {
@@ -24,7 +25,9 @@ function VoiceAgent() {
             try {
                 const res = await api.post("/chat", {
                     message,
+                    session_id: sessionId
                 });
+                setSessionId(res.data.session_id);
                 setMessages((prev) => [
                     ...prev,
                     {
@@ -41,16 +44,24 @@ function VoiceAgent() {
                 setStatus("idle");
             }
         },
-        [speak]
+        [speak,sessionId]
     );
     const { listening, startListening, stopListening} = useSpeechRecognition(sendMessage);
+    const handleMicClick = () => {
+        if(speechSynthesis.speaking || speechSynthesis.pending){
+            speechSynthesis.cancel();
+            setStatus("idle");
+        }
+        if(listening) stopListening();
+        else startListening();
+    };
     return (
         <div className="voice-agent">
             <div className="header"> AI Voice Agent</div>
             <StatusBar status={listening ? "listening" : status}/>
             <ChatWindow messages={messages}/>
             <div className="footer">
-                <MicrophoneButton listening={listening} onClick={listening ? stopListening : startListening}/>
+                <MicrophoneButton listening={listening} onClick={handleMicClick}/>
             </div>
         </div>
     );

@@ -1,4 +1,8 @@
 from fastapi import FastAPI
+from database import Base
+from database import engine
+from models.conversation import Conversation
+from models.message import Message
 from fastapi.middleware.cors import CORSMiddleware
 from routers.chat import router as chat_router
 from routers.health import router as health_router
@@ -11,5 +15,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+Base.metadata.create_all(bind=engine)
 app.include_router(chat_router)
 app.include_router(health_router)
